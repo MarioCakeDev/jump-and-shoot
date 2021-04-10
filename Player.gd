@@ -59,13 +59,10 @@ func _physics_process(delta):
 		var collision: KinematicCollision2D = get_slide_collision(i)
 		
 		var collider = collision.collider;
-		var isInstaKill = collider.get_collision_layer_bit(3);
 		var isDamage = collider.get_collision_layer_bit(4);
-		if isInstaKill:
-			reset();
-			return;
 		if isDamage:
 			reset();
+			return;
 	
 	snapVector = Vector2.DOWN * 10;
 	
