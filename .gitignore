@@ -12,3 +12,7 @@ data_*/
 
 # Custom Publish folder
 publish/
+
+# Audacity
+*_data/
+*.aup

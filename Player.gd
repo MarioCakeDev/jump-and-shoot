@@ -11,18 +11,25 @@ var shootTimer = 0.2
 var camera: Camera2D;
 var sprite: Sprite
 var viewportSize: Vector2;
+var startPosition: Vector2;
 var viewport: Viewport;
+var jumpSound: AudioStreamPlayer2D;
+var backupJumpTimer: float = 0.1;
+var previouslyOnGround: bool = false;
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	startPosition = position;
 	camera = $Camera2D
 	sprite = $CollisionShape2D/Sprite
 	viewportSize = get_viewport_rect().size;
 	viewport = get_viewport();
+	jumpSound = $JumpSound;
 
 
 func _physics_process(delta):
 	shootTimer -= delta
+	backupJumpTimer -= delta;
 	
 	actOnReleased("left")
 	actOnReleased("right")
@@ -31,27 +38,19 @@ func _physics_process(delta):
 	actOnPressed("left", "right")
 	actOnPressed("right", "left")
 	
-	
 	move_and_slide_with_snap(velocity, snapVector, Vector2.UP);
+	
+	for i in get_slide_count():
+		var collision: KinematicCollision2D = get_slide_collision(i)
+		var collider: PhysicsBody2D = collision.collider;
+		var isInstaKill = collider.get_collision_layer_bit(3);
+		if isInstaKill:
+			reset();
+			return;
+	
 	snapVector = Vector2.DOWN * 10;
 	
-	var isJumping = Input.is_action_pressed("jump");
-	
-	var isOnGround = is_on_floor();
-	var isOnCeiling = is_on_ceiling();
-	
-	if(isOnGround or isOnCeiling):
-		velocity.y = 0;
-	
-	if isOnGround:
-		if(isJumping):
-			snapVector = Vector2.ZERO;
-			velocity.y = -750;
-	else:
-		if(isJumping and velocity.y < 0):
-			velocity.y += 20;
-		else:
-			velocity.y += 40;
+	handleJumping();
 		
 	velocity.y = capAbsolute(velocity.y, 1500);
 	
@@ -59,10 +58,39 @@ func _physics_process(delta):
 	camera.position = lerp(camera.position,  mousePositionRelativeToCenter / 3, 0.05);
 	sprite.rotation_degrees = map(velocity.x, -speed, speed, -10, 10);
 
+func reset():
+	position = startPosition;
+	velocity = Vector2.ZERO;
+
+func handleJumping():
+	var isJumping = Input.is_action_pressed("jump");
+	var isOnGround = is_on_floor();
+	var isOnCeiling = is_on_ceiling();
+	
+	if(isOnGround or isOnCeiling):
+		velocity.y = 0;
+	
+	if (isOnGround or backupJumpTimer > 0) and isJumping:
+		backupJumpTimer = 0;
+		previouslyOnGround = false;
+		isOnGround = false;
+		snapVector = Vector2.ZERO;
+		velocity.y = -750;
+		jumpSound.play();
+	elif isJumping and velocity.y < 0:
+		velocity.y += 20;
+	else:
+		velocity.y += 40;
+		
+	if previouslyOnGround and not isOnGround:
+		backupJumpTimer = 0.15;
+	
+	previouslyOnGround = isOnGround;
+
 func shoot(shootPosition: Vector2):
 	if shootTimer > 0:
 		return
-	shootTimer = 0.15
+	shootTimer += 0.15
 	
 	var shootDirection: Vector2 = shootPosition - get_global_transform_with_canvas().origin
 	shootDirection = shootDirection.normalized()	

@@ -9,11 +9,15 @@ var velocity: Vector2 = Vector2()
 var collisionShape: CollisionShape2D;
 var particles: Particles2D;
 var shouldFree = false;
+var shotSound: AudioStreamPlayer2D;
+var shotImpact: AudioStreamPlayer2D;
 
 func _ready():
 	collisionShape = $CollisionShape2D;
 	particles = $Particles2D;
 	particles.visible = false;
+	shotSound = $ShotSound;
+	shotImpact = $ShotImpact;
 
 func _physics_process(delta):
 	var collision: KinematicCollision2D = move_and_collide(velocity * delta)
@@ -21,20 +25,18 @@ func _physics_process(delta):
 		return
 	if collision.collider.has_method("onShot"):
 		collision.collider.onShot()
-		
+	
+	shotImpact.play();
 	destroy();
 
 func fly():
+	shotSound.play();
 	velocity = Vector2(cos(rotation), sin(rotation)) * speed
 	yield(get_tree().create_timer(2), "timeout")
 	destroy();
-	return free();
+	yield(get_tree().create_timer(0.1), "timeout");
+	queue_free();
 
-func free():
-	if shouldFree:
-		queue_free()
-		return
-	shouldFree = true;
 
 func destroy():
 	if destroyed:
@@ -47,4 +49,4 @@ func destroy():
 	particles.visible = true;
 	
 	yield(get_tree().create_timer(0.1), "timeout");
-	return free();
+	particles.visible = false;
