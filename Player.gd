@@ -17,6 +17,12 @@ var jumpSound: AudioStreamPlayer2D;
 var backupJumpTimer: float = 0.1;
 var previouslyOnGround: bool = false;
 
+var canRun: bool = true;
+var canJump: bool = true;
+var hasFullJump: bool = true;
+var canShoot: bool = true;
+var canPropell: bool = true;
+
 func _ready():
 	startPosition = position;
 	camera = $Camera2D
@@ -24,7 +30,6 @@ func _ready():
 	viewportSize = get_viewport_rect().size;
 	viewport = get_viewport();
 	jumpSound = $JumpSound;
-
 
 func _physics_process(delta):
 	shootTimer -= delta
@@ -39,9 +44,21 @@ func _physics_process(delta):
 	
 	move_and_slide_with_snap(velocity, snapVector, Vector2.UP);
 	
+	if(Input.is_action_just_pressed("toggleJump")):
+		canJump = !canJump;
+	if(Input.is_action_just_pressed("toggleJumpHeight")):
+		hasFullJump = !hasFullJump;
+	if(Input.is_action_just_pressed("toggleShoot")):
+		canShoot = !canShoot;
+	if(Input.is_action_just_pressed("togglePropell")):
+		canPropell = !canPropell;
+	if(Input.is_action_just_pressed("toggleRunSpeed")):
+		canRun = !canRun;
+		
 	for i in get_slide_count():
 		var collision: KinematicCollision2D = get_slide_collision(i)
-		var collider: PhysicsBody2D = collision.collider;
+		
+		var collider = collision.collider;
 		var isInstaKill = collider.get_collision_layer_bit(3);
 		if isInstaKill:
 			reset();
@@ -51,7 +68,7 @@ func _physics_process(delta):
 	
 	handleJumping();
 		
-	velocity.y = capAbsolute(velocity.y, 1500);
+	velocity.y = capAbsolute(velocity.y, -1500 if hasFullJump else -300, 1500);
 	
 	var mousePositionRelativeToCenter = viewport.get_mouse_position() - (viewportSize / 2);
 	camera.position = lerp(camera.position,  mousePositionRelativeToCenter / 3, 0.05);
@@ -62,19 +79,23 @@ func reset():
 	velocity = Vector2.ZERO;
 
 func handleJumping():
-	var isJumping = Input.is_action_pressed("jump");
 	var isOnGround = is_on_floor();
 	var isOnCeiling = is_on_ceiling();
 	
 	if(isOnGround or isOnCeiling):
 		velocity.y = 0;
+		
+	if(not canJump):
+		return;
+	
+	var isJumping = Input.is_action_pressed("jump");
 	
 	if (isOnGround or backupJumpTimer > 0) and isJumping:
 		backupJumpTimer = 0;
 		previouslyOnGround = false;
 		isOnGround = false;
 		snapVector = Vector2.ZERO;
-		velocity.y = -750;
+		velocity.y = -750 if hasFullJump else -300;
 		jumpSound.play();
 	elif isJumping and velocity.y < 0:
 		velocity.y += 20;
@@ -86,7 +107,10 @@ func handleJumping():
 	
 	previouslyOnGround = isOnGround;
 
-func shoot(shootPosition: Vector2):
+func shoot(shootPosition: Vector2):	
+	if(not canShoot):
+		return;
+	
 	if shootTimer > 0:
 		return
 	shootTimer += 0.15
@@ -99,7 +123,8 @@ func shoot(shootPosition: Vector2):
 	shot.rotation = shootDirection.angle()
 	shot.position = position
 	
-	velocity -= shootDirection * Vector2(100, 225 if velocity.y > 0 else 100)
+	if(canPropell):
+		velocity -= shootDirection * Vector2(100, 225 if velocity.y > 0 else 100)
 	
 	$"..".add_child(shot)
 	shot.fly()
@@ -126,13 +151,19 @@ func actOnReleased(action: String):
 			actionsPressed.remove(pos)
 
 func on_left():
-	velocity.x = lerp(velocity.x / 0.8, -speed, 0.3);
+	run(-getRunSpeed());
 	
 func on_right():
-	velocity.x = lerp(velocity.x / 0.8, speed, 0.3);
+	run(getRunSpeed());
+	
+func getRunSpeed():
+	return speed if canRun else speed / 5;	
+	
+func run(runSpeed):
+	velocity.x = lerp(velocity.x / 0.8, runSpeed, 0.3);
 
-func capAbsolute(value, maxValue):
-	return sign(velocity.y) * min(abs(velocity.y), maxValue);
+func capAbsolute(value, minValue, maxValue):
+	return max(minValue, min(value, maxValue));
 
 func map(currentValue, minValue, maxValue, resultMinValue, resultMaxValue):
 	var maxDistance = maxValue - minValue;

@@ -34,7 +34,7 @@ func fly():
 	velocity = Vector2(cos(rotation), sin(rotation)) * speed
 	yield(get_tree().create_timer(2), "timeout")
 	destroy();
-	yield(get_tree().create_timer(0.1), "timeout");
+	yield(get_tree().create_timer(0.15), "timeout");
 	queue_free();
 
 
@@ -48,5 +48,5 @@ func destroy():
 	collisionShape.disabled = true;
 	particles.visible = true;
 	
-	yield(get_tree().create_timer(0.1), "timeout");
+	yield(get_tree().create_timer(0.15), "timeout");
 	particles.visible = false;

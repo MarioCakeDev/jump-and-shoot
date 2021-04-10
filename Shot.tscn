@@ -7,10 +7,10 @@
 [sub_resource type="AudioStreamRandomPitch" id=1]
 audio_stream = ExtResource( 2 )
 
-[sub_resource type="AudioStreamRandomPitch" id=6]
+[sub_resource type="AudioStreamRandomPitch" id=2]
 audio_stream = ExtResource( 3 )
 
-[sub_resource type="ParticlesMaterial" id=2]
+[sub_resource type="ParticlesMaterial" id=3]
 lifetime_randomness = 0.7
 emission_shape = 1
 emission_sphere_radius = 8.0
@@ -27,15 +27,15 @@ scale = 8.0
 scale_random = 0.5
 color = Color( 0.819608, 0.811765, 0.301961, 1 )
 
-[sub_resource type="RectangleShape2D" id=3]
+[sub_resource type="RectangleShape2D" id=4]
 extents = Vector2( 1, 1 )
 
-[sub_resource type="Gradient" id=4]
+[sub_resource type="Gradient" id=5]
 offsets = PoolRealArray( 0 )
 colors = PoolColorArray( 0.819608, 0.811765, 0.301961, 1 )
 
-[sub_resource type="GradientTexture" id=5]
-gradient = SubResource( 4 )
+[sub_resource type="GradientTexture" id=6]
+gradient = SubResource( 5 )
 width = 1
 
 [node name="Shot" type="KinematicBody2D"]
@@ -44,23 +44,25 @@ script = ExtResource( 1 )
 
 [node name="ShotSound" type="AudioStreamPlayer2D" parent="."]
 stream = SubResource( 1 )
+volume_db = -8.0
 pitch_scale = 1.1
 area_mask = 2
 
 [node name="ShotImpact" type="AudioStreamPlayer2D" parent="."]
-stream = SubResource( 6 )
+stream = SubResource( 2 )
+volume_db = -2.0
 
 [node name="Particles2D" type="Particles2D" parent="."]
 position = Vector2( 8, 0 )
 lifetime = 0.1
 explosiveness = 0.5
-process_material = SubResource( 2 )
+process_material = SubResource( 3 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 scale = Vector2( 11.0764, 5.04437 )
-shape = SubResource( 3 )
+shape = SubResource( 4 )
 
 [node name="Sprite" type="Sprite" parent="CollisionShape2D"]
 position = Vector2( 0.0220966, 0 )
 scale = Vector2( 2, 2 )
-texture = SubResource( 5 )
+texture = SubResource( 6 )
