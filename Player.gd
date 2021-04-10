@@ -84,13 +84,10 @@ func handleJumping():
 	
 	if(isOnGround or isOnCeiling):
 		velocity.y = 0;
-		
-	if(not canJump):
-		return;
 	
 	var isJumping = Input.is_action_pressed("jump");
 	
-	if (isOnGround or backupJumpTimer > 0) and isJumping:
+	if (isOnGround or backupJumpTimer > 0) and isJumping and canJump:
 		backupJumpTimer = 0;
 		previouslyOnGround = false;
 		isOnGround = false;
