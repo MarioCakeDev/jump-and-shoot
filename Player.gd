@@ -17,7 +17,6 @@ var jumpSound: AudioStreamPlayer2D;
 var backupJumpTimer: float = 0.1;
 var previouslyOnGround: bool = false;
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	startPosition = position;
 	camera = $Camera2D
