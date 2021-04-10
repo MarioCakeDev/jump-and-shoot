@@ -42,7 +42,7 @@ func _physics_process(delta):
 	actOnPressed("left", "right")
 	actOnPressed("right", "left")
 	
-	move_and_slide_with_snap(velocity, snapVector, Vector2.UP);
+	move_and_slide_with_snap(velocity, snapVector, Vector2.UP, true, 2);
 	
 	if(Input.is_action_just_pressed("toggleJump")):
 		canJump = !canJump;
