@@ -1,22 +1,28 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://assets/Jump.wav" type="AudioStream" id=1]
 [ext_resource path="res://Player.gd" type="Script" id=2]
-[ext_resource path="res://assets/player.png" type="Texture" id=3]
 
 [sub_resource type="AudioStreamRandomPitch" id=1]
 audio_stream = ExtResource( 1 )
 random_pitch = 1.05
 
 [sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 1.44221, 2.33408 )
+extents = Vector2( 1, 1 )
+
+[sub_resource type="Gradient" id=3]
+offsets = PoolRealArray( -4.80672e-26 )
+colors = PoolColorArray( 0.882353, 0.811765, 0.0666667, 1 )
+
+[sub_resource type="GradientTexture" id=4]
+gradient = SubResource( 3 )
+width = 1
 
 [node name="Player" type="KinematicBody2D"]
-position = Vector2( 568.625, 1090.51 )
 scale = Vector2( 0.25, 0.25 )
 collision_layer = 4
-collision_mask = 41
-collision/safe_margin = 0.001
+collision_mask = 9
+collision/safe_margin = 0.1
 script = ExtResource( 2 )
 
 [node name="JumpSound" type="AudioStreamPlayer2D" parent="."]
@@ -30,14 +36,13 @@ smoothing_enabled = true
 smoothing_speed = 10.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-rotation = 0.00579748
-scale = Vector2( 12.9237, 12.9237 )
+scale = Vector2( 15, 15 )
 shape = SubResource( 2 )
 
-[node name="Sprite" type="Sprite" parent="CollisionShape2D"]
-position = Vector2( 0.115234, -0.000488281 )
-rotation = -0.00579748
-scale = Vector2( 0.05, 0.05 )
-texture = ExtResource( 3 )
-vframes = 3
-hframes = 5
+[node name="SpriteParent" type="Node2D" parent="CollisionShape2D"]
+scale = Vector2( 2, 2 )
+
+[node name="Sprite" type="Sprite" parent="CollisionShape2D/SpriteParent"]
+position = Vector2( -0.5, -0.5 )
+texture = SubResource( 4 )
+centered = false

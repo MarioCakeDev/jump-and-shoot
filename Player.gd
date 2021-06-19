@@ -2,6 +2,10 @@ extends KinematicBody2D
 
 var velocity: Vector2 = Vector2();
 export var speed: float = 750;
+
+var jumpStrength = 900;
+var halfJumpStrength = 300
+
 var actionsPressed = [];
 
 var snapVector: Vector2 = Vector2.DOWN * 10;
@@ -9,7 +13,7 @@ var snapVector: Vector2 = Vector2.DOWN * 10;
 var Stopwatch = load("res://Stopwatch.gd");
 var createShot = load("res://Shot.tscn")
 var camera: Camera2D;
-var sprite: Sprite
+var sprite: Node2D
 var viewportSize: Vector2;
 var startPosition: Vector2;
 var viewport: Viewport;
@@ -17,7 +21,7 @@ var jumpSound: AudioStreamPlayer2D;
 var previouslyOnGround: bool = false;
 
 var jumpTimer = Stopwatch.new(200);
-var shootTimer = Stopwatch.new(135);
+var shootTimer = Stopwatch.new(155);
 var backupJumpTimer = Stopwatch.new(150);
 
 var canRun: bool = true;
@@ -30,7 +34,7 @@ var canPropell: bool = true;
 func _ready():
 	startPosition = position;
 	camera = $Camera2D
-	sprite = $CollisionShape2D/Sprite
+	sprite = $CollisionShape2D/SpriteParent
 	viewportSize = get_viewport_rect().size;
 	viewport = get_viewport();
 	jumpSound = $JumpSound;
@@ -43,7 +47,7 @@ func _physics_process(delta):
 	actOnPressed("left", "right")
 	actOnPressed("right", "left")
 	
-	move_and_slide_with_snap(velocity, snapVector, Vector2.UP, true, 2, 0.785398, false);
+	move_and_slide_with_snap(velocity, snapVector, Vector2.UP, true, 20, 0.785398, false);
 	
 	if(Input.is_action_just_pressed("toggleJump")):
 		canJump = !canJump;
@@ -61,6 +65,7 @@ func _physics_process(delta):
 	snapVector = Vector2.DOWN;
 	
 	handleJumping();
+	handleShooting();
 		
 	velocity.y = capAbsolute(velocity.y, -1500 if hasFullJump else -300, 1500);
 	
@@ -69,7 +74,6 @@ func _physics_process(delta):
 	sprite.rotation_degrees = map(velocity.x, -speed, speed, -20, 20);
 
 func reset():
-	#print("Reset");
 	position = startPosition;
 	velocity = Vector2.ZERO;
 
@@ -91,17 +95,21 @@ func handleJumping():
 		previouslyOnGround = false;
 		isOnGround = false;
 		snapVector = Vector2.ZERO;
-		velocity.y = -750 if hasFullJump else -300;
+		velocity.y = -jumpStrength if hasFullJump else -halfJumpStrength;
 		jumpSound.play();
 	elif isJumping and velocity.y < 0:
-		velocity.y += 20;
+		velocity.y += 25;
 	else:
-		velocity.y += 40;
+		velocity.y += 45;
 		
 	if previouslyOnGround and not isOnGround:
 		backupJumpTimer.reset();
 	
 	previouslyOnGround = isOnGround;
+
+func handleShooting():
+	if Input.is_mouse_button_pressed(BUTTON_LEFT):
+		shoot(get_viewport().get_mouse_position())	
 
 func shoot(shootPosition: Vector2):	
 	if(not canShoot):
@@ -124,10 +132,7 @@ func shoot(shootPosition: Vector2):
 	
 	$"..".add_child(shot)
 	shot.fly()
-	
-func _input(event):	
-	if event is InputEventMouseButton and event.pressed and event.button_index == BUTTON_LEFT:
-		shoot(event.position)	
+		
 		
 func actOnPressed(action: String, againstAction: String):
 	if Input.is_action_pressed(action):
@@ -157,11 +162,6 @@ func getRunSpeed():
 	
 func run(runSpeed):
 	velocity.x = lerp(velocity.x / 0.8, runSpeed, 0.3);
-	
-	if(velocity.x < 0):
-		sprite.flip_h = true;
-	if(velocity.x > 0):
-		sprite.flip_h = false;
 
 func capAbsolute(value, minValue, maxValue):
 	return max(minValue, min(value, maxValue));
