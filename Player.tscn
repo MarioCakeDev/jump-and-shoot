@@ -1,0 +1,43 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://assets/Jump.wav" type="AudioStream" id=1]
+[ext_resource path="res://Player.gd" type="Script" id=2]
+[ext_resource path="res://assets/player.png" type="Texture" id=3]
+
+[sub_resource type="AudioStreamRandomPitch" id=1]
+audio_stream = ExtResource( 1 )
+random_pitch = 1.05
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 1.44221, 2.33408 )
+
+[node name="Player" type="KinematicBody2D"]
+position = Vector2( 568.625, 1090.51 )
+scale = Vector2( 0.25, 0.25 )
+collision_layer = 4
+collision_mask = 41
+collision/safe_margin = 0.001
+script = ExtResource( 2 )
+
+[node name="JumpSound" type="AudioStreamPlayer2D" parent="."]
+stream = SubResource( 1 )
+volume_db = -8.0
+
+[node name="Camera2D" type="Camera2D" parent="."]
+scale = Vector2( 1.00951, 3.16753 )
+current = true
+smoothing_enabled = true
+smoothing_speed = 10.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+rotation = 0.00579748
+scale = Vector2( 12.9237, 12.9237 )
+shape = SubResource( 2 )
+
+[node name="Sprite" type="Sprite" parent="CollisionShape2D"]
+position = Vector2( 0.115234, -0.000488281 )
+rotation = -0.00579748
+scale = Vector2( 0.05, 0.05 )
+texture = ExtResource( 3 )
+vframes = 3
+hframes = 5

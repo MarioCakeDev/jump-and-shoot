@@ -6,22 +6,26 @@ var actionsPressed = [];
 
 var snapVector: Vector2 = Vector2.DOWN * 10;
 
+var Stopwatch = load("res://Stopwatch.gd");
 var createShot = load("res://Shot.tscn")
-var shootTimer = 0.2
 var camera: Camera2D;
 var sprite: Sprite
 var viewportSize: Vector2;
 var startPosition: Vector2;
 var viewport: Viewport;
 var jumpSound: AudioStreamPlayer2D;
-var backupJumpTimer: float = 0.1;
 var previouslyOnGround: bool = false;
+
+var jumpTimer = Stopwatch.new(200);
+var shootTimer = Stopwatch.new(135);
+var backupJumpTimer = Stopwatch.new(150);
 
 var canRun: bool = true;
 var canJump: bool = true;
 var hasFullJump: bool = true;
 var canShoot: bool = true;
 var canPropell: bool = true;
+
 
 func _ready():
 	startPosition = position;
@@ -31,10 +35,7 @@ func _ready():
 	viewport = get_viewport();
 	jumpSound = $JumpSound;
 
-func _physics_process(delta):
-	shootTimer -= delta
-	backupJumpTimer -= delta;
-	
+func _physics_process(delta):	
 	actOnReleased("left")
 	actOnReleased("right")
 	
@@ -42,7 +43,7 @@ func _physics_process(delta):
 	actOnPressed("left", "right")
 	actOnPressed("right", "left")
 	
-	move_and_slide_with_snap(velocity, snapVector, Vector2.UP, true, 2);
+	move_and_slide_with_snap(velocity, snapVector, Vector2.UP, true, 2, 0.785398, false);
 	
 	if(Input.is_action_just_pressed("toggleJump")):
 		canJump = !canJump;
@@ -54,17 +55,10 @@ func _physics_process(delta):
 		canPropell = !canPropell;
 	if(Input.is_action_just_pressed("toggleRunSpeed")):
 		canRun = !canRun;
-		
-	for i in get_slide_count():
-		var collision: KinematicCollision2D = get_slide_collision(i)
-		
-		var collider = collision.collider;
-		var isDamage = collider.get_collision_layer_bit(4);
-		if isDamage:
-			reset();
-			return;
+	if(Input.is_action_just_pressed("reset")):
+		reset();
 	
-	snapVector = Vector2.DOWN * 10;
+	snapVector = Vector2.DOWN;
 	
 	handleJumping();
 		
@@ -72,9 +66,10 @@ func _physics_process(delta):
 	
 	var mousePositionRelativeToCenter = viewport.get_mouse_position() - (viewportSize / 2);
 	camera.position = lerp(camera.position,  mousePositionRelativeToCenter / 3, 0.05);
-	sprite.rotation_degrees = map(velocity.x, -speed, speed, -10, 10);
+	sprite.rotation_degrees = map(velocity.x, -speed, speed, -20, 20);
 
 func reset():
+	#print("Reset");
 	position = startPosition;
 	velocity = Vector2.ZERO;
 
@@ -82,13 +77,17 @@ func handleJumping():
 	var isOnGround = is_on_floor();
 	var isOnCeiling = is_on_ceiling();
 	
-	if(isOnGround or isOnCeiling):
+	if(isOnGround):
+		velocity.y = 0;
+	
+	if(isOnCeiling && velocity.y < 0):
 		velocity.y = 0;
 	
 	var isJumping = Input.is_action_pressed("jump");
 	
-	if (isOnGround or backupJumpTimer > 0) and isJumping and canJump:
-		backupJumpTimer = 0;
+	if (isOnGround or !backupJumpTimer.isRunCooldown()) and isJumping and canJump and jumpTimer.isRunCooldown():
+		jumpTimer.reset();
+		backupJumpTimer.reset();
 		previouslyOnGround = false;
 		isOnGround = false;
 		snapVector = Vector2.ZERO;
@@ -100,17 +99,17 @@ func handleJumping():
 		velocity.y += 40;
 		
 	if previouslyOnGround and not isOnGround:
-		backupJumpTimer = 0.15;
+		backupJumpTimer.reset();
 	
 	previouslyOnGround = isOnGround;
 
 func shoot(shootPosition: Vector2):	
 	if(not canShoot):
 		return;
-	
-	if shootTimer > 0:
-		return
-	shootTimer += 0.15
+		
+	if !shootTimer.isRunCooldown():
+		return;
+	shootTimer.reset();
 	
 	var shootDirection: Vector2 = shootPosition - get_global_transform_with_canvas().origin
 	shootDirection = shootDirection.normalized()	
@@ -158,6 +157,11 @@ func getRunSpeed():
 	
 func run(runSpeed):
 	velocity.x = lerp(velocity.x / 0.8, runSpeed, 0.3);
+	
+	if(velocity.x < 0):
+		sprite.flip_h = true;
+	if(velocity.x > 0):
+		sprite.flip_h = false;
 
 func capAbsolute(value, minValue, maxValue):
 	return max(minValue, min(value, maxValue));

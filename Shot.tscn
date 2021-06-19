@@ -39,6 +39,7 @@ gradient = SubResource( 5 )
 width = 1
 
 [node name="Shot" type="KinematicBody2D"]
+scale = Vector2( 0.25, 0.25 )
 collision_layer = 2
 script = ExtResource( 1 )
 

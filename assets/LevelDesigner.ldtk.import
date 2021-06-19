@@ -1,0 +1,16 @@
+[remap]
+
+importer="LDtk.import"
+type="PackedScene"
+path="res://.import/LevelDesigner.ldtk-b1f6680a200056dd717719e36e6bbfef.tscn"
+
+[deps]
+
+source_file="res://assets/LevelDesigner.ldtk"
+dest_files=[ "res://.import/LevelDesigner.ldtk-b1f6680a200056dd717719e36e6bbfef.tscn" ]
+
+[params]
+
+Import_Collisions=false
+Import_Custom_Entities=true
+Import_Metadata=true
