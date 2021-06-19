@@ -9,7 +9,7 @@ func reset():
 	self._currentTime = OS.get_ticks_msec();
 	
 func isRunCooldown() -> bool:
-	print(self._cooldownMs, ' ', OS.get_ticks_msec());
+	#print(self._cooldownMs, ' ', OS.get_ticks_msec());
 	return self._currentTime + self._cooldownMs <= OS.get_ticks_msec();
 	
 func stop():

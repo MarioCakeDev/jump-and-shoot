@@ -22,5 +22,5 @@ shape = SubResource( 1 )
 [node name="box" type="Sprite" parent="KinematicBody2D"]
 position = Vector2( 8, 8 )
 texture = ExtResource( 1 )
-vframes = 2
 hframes = 2
+vframes = 2
