@@ -39,7 +39,7 @@ func _ready():
 	viewport = get_viewport();
 	jumpSound = $JumpSound;
 
-func _physics_process(delta):	
+func _physics_process(_delta):
 	actOnReleased("left")
 	actOnReleased("right")
 	
@@ -47,7 +47,7 @@ func _physics_process(delta):
 	actOnPressed("left", "right")
 	actOnPressed("right", "left")
 	
-	move_and_slide_with_snap(velocity, snapVector, Vector2.UP, true, 20, 0.785398, false);
+	var _err = move_and_slide_with_snap(velocity, snapVector, Vector2.UP, true, 20, 0.785398, false);
 	
 	if(Input.is_action_just_pressed("toggleJump")):
 		canJump = !canJump;
