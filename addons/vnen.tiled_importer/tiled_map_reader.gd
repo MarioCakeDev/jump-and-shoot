@@ -1056,7 +1056,7 @@ func set_tiled_properties_as_meta(object, tiled_object):
 # Custom function to sort objects in an object layer
 # This is done to support the "topdown" draw order, which sorts by 'y' coordinate
 func object_sorter(first, second):
-	if first.y == second.y:
+	if first.y == second.y:				
 		return first.id < second.id
 	return first.y < second.y
 

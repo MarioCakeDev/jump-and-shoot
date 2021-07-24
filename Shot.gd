@@ -50,3 +50,7 @@ func destroy():
 	
 	yield(get_tree().create_timer(0.15), "timeout");
 	particles.visible = false;
+
+func apply_rotation(targetRotation):
+	rotation = lerp_angle(rotation, targetRotation + PI / 2, 0.1)
+	velocity = Vector2(cos(rotation), sin(rotation)) * speed

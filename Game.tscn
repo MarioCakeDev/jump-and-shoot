@@ -10,6 +10,7 @@
 position = Vector2( 498.508, 293.176 )
 
 [node name="Level" parent="." instance=ExtResource( 8 )]
+position = Vector2( 16.9805, 25.9706 )
 scale = Vector2( 4, 4 )
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]

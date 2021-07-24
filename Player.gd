@@ -30,6 +30,12 @@ var hasFullJump: bool = true;
 var canShoot: bool = true;
 var canPropell: bool = true;
 
+var gravityRotation: float = 0;
+
+var upVector = Vector2.UP
+
+var isOnGround = false;
+var isOnCeiling = false;
 
 func _ready():
 	startPosition = position;
@@ -40,6 +46,8 @@ func _ready():
 	jumpSound = $JumpSound;
 
 func _physics_process(_delta):
+	rotateVelocityAsDown()
+	
 	actOnReleased("left")
 	actOnReleased("right")
 	
@@ -47,9 +55,35 @@ func _physics_process(_delta):
 	actOnPressed("left", "right")
 	actOnPressed("right", "left")
 	
-	var _err = move_and_slide_with_snap(velocity, snapVector, Vector2.UP, true, 20, 0.785398, false);
+	rotateVelocityToDirection()
 	
-	if(Input.is_action_just_pressed("toggleJump")):
+	move_and_slide_with_snap(velocity, snapVector, upVector, true, 20, 0.785398, false);
+	
+	isOnGround = is_on_floor();
+	isOnCeiling = is_on_ceiling();
+	
+	rotateVelocityAsDown()
+	
+	handleDebugInput()
+	
+	snapVector = -upVector;
+	
+	handleJumping()
+	handleShooting()
+		
+	velocity.y = capAbsolute(velocity.y, -1500 if hasFullJump else -300, 1500)
+	
+	var mousePositionRelativeToCenter = (viewport.get_mouse_position() - (viewportSize / 2)).rotated(gravityRotation);
+	camera.position = lerp(camera.position,  mousePositionRelativeToCenter / 3, 0.05);
+	sprite.rotation_degrees = map(velocity.x, -speed, speed, -20, 20) + rad2deg(gravityRotation);
+	camera.rotation = lerp_angle(camera.rotation, gravityRotation, 0.2);
+
+	rotateVelocityToDirection()
+
+func handleDebugInput():
+	if(Input.is_action_just_pressed("rotate")):
+		apply_rotation(gravityRotation + (PI / 2));
+	elif(Input.is_action_just_pressed("toggleJump")):
 		canJump = !canJump;
 	if(Input.is_action_just_pressed("toggleJumpHeight")):
 		hasFullJump = !hasFullJump;
@@ -61,26 +95,30 @@ func _physics_process(_delta):
 		canRun = !canRun;
 	if(Input.is_action_just_pressed("reset")):
 		reset();
+
+func apply_rotation(targetRotation):
+	if gravityRotation == targetRotation:
+		return
 	
-	snapVector = Vector2.DOWN;
-	
-	handleJumping();
-	handleShooting();
-		
-	velocity.y = capAbsolute(velocity.y, -1500 if hasFullJump else -300, 1500);
-	
-	var mousePositionRelativeToCenter = viewport.get_mouse_position() - (viewportSize / 2);
-	camera.position = lerp(camera.position,  mousePositionRelativeToCenter / 3, 0.05);
-	sprite.rotation_degrees = map(velocity.x, -speed, speed, -20, 20);
+	velocity = Vector2.ZERO
+	gravityRotation = targetRotation
+	if gravityRotation >= TAU:
+		gravityRotation -= TAU
+	upVector = Vector2.UP.rotated(gravityRotation)
+
+func rotateVelocityAsDown():
+	if velocity.length_squared() != 0:
+		velocity = velocity.rotated(-gravityRotation)
+
+func rotateVelocityToDirection():
+	if velocity.length_squared() != 0:
+		velocity = velocity.rotated(gravityRotation)
 
 func reset():
 	position = startPosition;
 	velocity = Vector2.ZERO;
 
-func handleJumping():
-	var isOnGround = is_on_floor();
-	var isOnCeiling = is_on_ceiling();
-	
+func handleJumping():	
 	if(isOnGround):
 		velocity.y = 0;
 	
@@ -88,8 +126,10 @@ func handleJumping():
 		velocity.y = 0;
 	
 	var isJumping = Input.is_action_pressed("jump");
+		
+	var isOnGroundOrBackupJump = isOnGround or !backupJumpTimer.isRunCooldown()
 	
-	if (isOnGround or !backupJumpTimer.isRunCooldown()) and isJumping and canJump and jumpTimer.isRunCooldown():
+	if isOnGroundOrBackupJump and isJumping and canJump and jumpTimer.isRunCooldown():
 		jumpTimer.reset();
 		backupJumpTimer.reset();
 		previouslyOnGround = false;
@@ -120,11 +160,11 @@ func shoot(shootPosition: Vector2):
 	shootTimer.reset();
 	
 	var shootDirection: Vector2 = shootPosition - get_global_transform_with_canvas().origin
-	shootDirection = shootDirection.normalized()	
+	shootDirection = shootDirection.normalized()
 		
 	var shot: Shot = createShot.instance()
 	
-	shot.rotation = shootDirection.angle()
+	shot.rotation = shootDirection.angle() + gravityRotation
 	shot.position = position
 	
 	if(canPropell):

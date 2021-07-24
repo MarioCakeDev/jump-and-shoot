@@ -7,35 +7,43 @@
 audio_stream = ExtResource( 1 )
 random_pitch = 1.05
 
-[sub_resource type="GDScript" id=8]
+[sub_resource type="GDScript" id=2]
 script/source = "extends KinematicBody2D
 
+var camera: Camera2D;
+
 func _ready():
+	camera = get_parent();
 	pass
 
 func _physics_process(delta):
-	move_and_slide(Vector2.ZERO)
+	var collision = move_and_collide(Vector2.ZERO)
+	if collision:
+		camera.position.x = camera.position.x + self.position.x;
+		camera.position.y = camera.position.y + self.position.y;
+		self.position.x = 0;
+		self.position.y = 0;
 "
 
-[sub_resource type="CapsuleShape2D" id=6]
+[sub_resource type="CapsuleShape2D" id=3]
 radius = 360.0
 height = 575.0
 
-[sub_resource type="RectangleShape2D" id=7]
+[sub_resource type="RectangleShape2D" id=4]
 extents = Vector2( 1, 1 )
 
-[sub_resource type="Gradient" id=4]
+[sub_resource type="Gradient" id=5]
 offsets = PoolRealArray( -4.80672e-26 )
 colors = PoolColorArray( 0.882353, 0.811765, 0.0666667, 1 )
 
-[sub_resource type="GradientTexture" id=5]
-gradient = SubResource( 4 )
+[sub_resource type="GradientTexture" id=6]
+gradient = SubResource( 5 )
 width = 1
 
 [node name="Player" type="KinematicBody2D"]
 scale = Vector2( 0.25, 0.25 )
 collision_layer = 4
-collision_mask = 9
+collision_mask = 265
 collision/safe_margin = 0.1
 script = ExtResource( 2 )
 
@@ -44,6 +52,7 @@ stream = SubResource( 1 )
 volume_db = -8.0
 
 [node name="Camera2D" type="Camera2D" parent="."]
+rotating = true
 current = true
 smoothing_enabled = true
 smoothing_speed = 10.0
@@ -51,20 +60,20 @@ smoothing_speed = 10.0
 [node name="CameraBody" type="KinematicBody2D" parent="Camera2D"]
 collision_layer = 32
 collision_mask = 64
-script = SubResource( 8 )
+script = SubResource( 2 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Camera2D/CameraBody"]
 rotation = 1.5708
-shape = SubResource( 6 )
+shape = SubResource( 3 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 scale = Vector2( 15, 15 )
-shape = SubResource( 7 )
+shape = SubResource( 4 )
 
 [node name="SpriteParent" type="Node2D" parent="CollisionShape2D"]
 scale = Vector2( 2, 2 )
 
 [node name="Sprite" type="Sprite" parent="CollisionShape2D/SpriteParent"]
 position = Vector2( -0.5, -0.5 )
-texture = SubResource( 5 )
+texture = SubResource( 6 )
 centered = false

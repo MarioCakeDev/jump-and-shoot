@@ -37,10 +37,12 @@ func get_layer_entities(layer, level, options):
 	return entities
 
 
+var has_printed = false;
 #create new entity
 func new_entity(entity_data, level, options):
 	var new_entity
 	var metadata = []
+	var new_size: Vector2;
 	
 	var is_custom_entity = false
 	if entity_data.fieldInstances:
@@ -68,6 +70,10 @@ func new_entity(entity_data, level, options):
 						new_entity = resource.instance()
 						new_entity.position = Vector2(entity_data.px[0] + level.worldX, entity_data.px[1] + level.worldY)
 						is_custom_entity = true
+						
+			elif field.__identifier == 'SetScale' and field.__type == 'Bool' and field.__value:
+				new_size = Vector2(entity_data.width, entity_data.height) / 2
+				
 			elif options.Import_Metadata:
 				metadata.append({'name': field.__identifier, 'value': field.__value})
 	else:
@@ -84,6 +90,9 @@ func new_entity(entity_data, level, options):
 			new_entity.set_meta(data['name'], data['value'])
 
 	if is_custom_entity:
+		if new_size:
+			new_entity.scale = new_size
+		
 		return new_entity
 
 	match new_entity.get_class():
