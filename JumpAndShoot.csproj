@@ -7,4 +7,10 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="prefabs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="prefabs\SkinSwitcher.cs" />
+  </ItemGroup>
 </Project>
