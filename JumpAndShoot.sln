@@ -1,0 +1,19 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JumpAndShoot", "JumpAndShoot.csproj", "{FA58DD79-A6D4-4462-8B18-51911E0E4E08}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+	Debug|Any CPU = Debug|Any CPU
+	ExportDebug|Any CPU = ExportDebug|Any CPU
+	ExportRelease|Any CPU = ExportRelease|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FA58DD79-A6D4-4462-8B18-51911E0E4E08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA58DD79-A6D4-4462-8B18-51911E0E4E08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA58DD79-A6D4-4462-8B18-51911E0E4E08}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
+		{FA58DD79-A6D4-4462-8B18-51911E0E4E08}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
+		{FA58DD79-A6D4-4462-8B18-51911E0E4E08}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
+		{FA58DD79-A6D4-4462-8B18-51911E0E4E08}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+	EndGlobalSection
+EndGlobal

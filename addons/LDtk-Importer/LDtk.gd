@@ -64,6 +64,10 @@ func new_entity(entity_data, level, options):
 							return
 
 						var resource = load(field.__value)
+						
+						if not resource:
+							resource = load("prefabs/" + field.__value)
+						
 						if not resource:
 							printerr("Could not load resource: ", field.__value)
 							return

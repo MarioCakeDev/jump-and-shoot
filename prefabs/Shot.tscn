@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=2]
 
-[ext_resource path="res://Shot.gd" type="Script" id=1]
+[ext_resource path="res://scripts/Shot.cs" type="Script" id=1]
 [ext_resource path="res://assets/Shot.wav" type="AudioStream" id=2]
 [ext_resource path="res://assets/ShotImpact.wav" type="AudioStream" id=3]
 

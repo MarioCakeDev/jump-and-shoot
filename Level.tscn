@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://assets/LevelDesigner.ldtk" type="PackedScene" id=1]
-[ext_resource path="res://Collisions.tres" type="TileSet" id=2]
+[ext_resource path="res://prefabs/Collisions.tres" type="TileSet" id=2]
 
 [node name="LevelDesigner" instance=ExtResource( 1 )]
 
