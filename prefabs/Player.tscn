@@ -1,9 +1,8 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://scripts/Player.cs" type="Script" id=1]
 [ext_resource path="res://assets/Jump.wav" type="AudioStream" id=2]
 [ext_resource path="res://scripts/CameraBounding.cs" type="Script" id=3]
-[ext_resource path="res://assets/player_skins.png" type="Texture" id=4]
 [ext_resource path="res://scripts/SkinSwitcher.cs" type="Script" id=5]
 
 [sub_resource type="AudioStreamRandomPitch" id=1]
@@ -64,9 +63,6 @@ texture = SubResource( 5 )
 centered = false
 
 [node name="Skin" type="Sprite" parent="CollisionShape2D/SpriteParent"]
-scale = Vector2( 0.1, 0.1 )
-texture = ExtResource( 4 )
-hframes = 2
-vframes = 2
-frame = 1
+scale = Vector2( 0.167, 0.167 )
 script = ExtResource( 5 )
+_skinsFolder = "res://assets/skins"

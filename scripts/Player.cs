@@ -13,11 +13,14 @@ namespace JumpAndShoot.scripts
 		
 		private Vector2 _startPosition;
 		private Camera2D _camera = default!;
-		private Node2D _sprite = default!;
+		private Node2D _rotationSprite = default!;
 		private Vector2 _viewportSize;
 		private Viewport _viewport = default!;
 		private AudioStreamPlayer2D _jumpSound = default!;
 		private Vector2 _velocity;
+		
+		private Sprite _mainSprite = default!;
+		private Sprite _skinSprite = default!;
 		
 		private readonly Stopwatch _backupJumpTimer = new(150);
 		private readonly Stopwatch _jumpTimer = new(200);
@@ -54,10 +57,13 @@ namespace JumpAndShoot.scripts
 		{
 			this._startPosition = this.Position;
 			this._camera = this.GetComponent<Camera2D>();
-			this._sprite = this.GetComponent<Node2D>("SpriteParent");
+			this._rotationSprite = this.GetComponent<Node2D>("SpriteParent");
 			this._viewportSize = this.GetViewportRect().Size;
 			this._viewport = this.GetViewport();
 			this._jumpSound = this.GetComponent<AudioStreamPlayer2D>("JumpSound");
+			
+			this._mainSprite = this.GetComponent<Sprite>("Sprite");
+			this._skinSprite = this.GetComponent<Sprite>("Skin");
 			
 			this.AddChild(this._tween);
 		}
@@ -97,7 +103,7 @@ namespace JumpAndShoot.scripts
 			
 			Vector2 mousePositionRelativeToCenter = (this.GetViewport().GetMousePosition() - this._viewportSize / 2).Rotated(this._gravityRotation);
 			this._camera.Position = this._camera.Position.LinearInterpolate(mousePositionRelativeToCenter / 3, 0.05f);
-			this._sprite.RotationDegrees = Map(this._velocity.x, -this._speed, this._speed, -20, 20) + Mathf.Rad2Deg(this._gravityRotation);
+			this._rotationSprite.RotationDegrees = Map(this._velocity.x, -this._speed, this._speed, -20, 20) + Mathf.Rad2Deg(this._gravityRotation);
 
 			this.RotateVelocityToDirection();
 		}
@@ -159,6 +165,9 @@ namespace JumpAndShoot.scripts
 
 		private void Run(float runSpeed)
 		{
+			this._mainSprite.FlipH = runSpeed < 0;
+			this._skinSprite.FlipH = runSpeed < 0;
+			
 			this._moving = true;
 
 			if (this._keepMoveDirection && this._movedBefore)
@@ -353,16 +362,6 @@ namespace JumpAndShoot.scripts
 			
 			this.GetParent().AddChild(shot);
 			shot.Fly();
-		}
-	}
-
-	internal class InputActionAttribute : Attribute
-	{
-		public string ActionName { get; }
-
-		public InputActionAttribute(string actionName)
-		{
-			this.ActionName = actionName;
 		}
 	}
 }

@@ -13,7 +13,7 @@ namespace JumpAndShoot.scripts
 		private Particles2D _particles = default!;
 		private AudioStreamPlayer2D _shotSound = default!;
 		private AudioStreamPlayer2D _shotImpact = default!;
-		
+
 		public override void _Ready()
 		{
 			this._collisionShape = this.GetComponent<CollisionShape2D>();
@@ -45,7 +45,7 @@ namespace JumpAndShoot.scripts
 			this._shotSound.Play();
 			this._velocity = new Vector2(Mathf.Cos(this.Rotation), Mathf.Sin(this.Rotation)) * Speed;
 			
-			RunAfterTimeout(TimeSpan.FromSeconds(2), this.Destroy);
+			RunAfterTimeout(TimeSpan.FromSeconds(120), this.Destroy);
 		}
 
 		private void Destroy()
